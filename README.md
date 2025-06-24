@@ -2,6 +2,8 @@
 
 A simple and efficient task management web application built with the T3 Stack.
 
+🚀 **Live Demo**: Coming soon on Vercel!
+
 ## 🚀 Features
 
 - ✅ Create, edit, and delete tasks
@@ -17,10 +19,11 @@ This project is built using the T3 Stack:
 
 - **Framework**: [Next.js](https://nextjs.org)
 - **Language**: [TypeScript](https://typescriptlang.org)
-- **Database**: [Prisma](https://prisma.io) with SQLite
+- **Database**: [Prisma](https://prisma.io) with PostgreSQL (Supabase)
 - **API**: [tRPC](https://trpc.io)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com)
+- **Styling**: Custom CSS
 - **State Management**: [TanStack Query](https://tanstack.com/query)
+- **Deployment**: [Vercel](https://vercel.com)
 
 ## 🏃‍♂️ Getting Started
 
@@ -59,6 +62,15 @@ This project is built using the T3 Stack:
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## 🌐 Deployment
+
+This app is deployed on Vercel with Supabase PostgreSQL database.
+
+### Environment Variables for Production:
+```
+DATABASE_URL=postgresql://postgres:[password]@db.[project-id].supabase.co:5432/postgres
+```
+
 ## 📁 Project Structure
 
 ```
@@ -90,15 +102,9 @@ model Task {
   title       String
   description String?
   completed   Boolean  @default(false)
-  priority    Priority @default(MEDIUM)
+  priority    String   @default("MEDIUM")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-}
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
 }
 ```
 
