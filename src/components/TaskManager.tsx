@@ -54,7 +54,7 @@ const TaskManager = () => {
       await updateTask.mutateAsync({
         id: editingTask.id,
         title: editingTask.title,
-        description: editingTask.description,
+        description: editingTask.description || undefined,
         priority: editingTask.priority as Priority,
       });
       
@@ -83,47 +83,56 @@ const TaskManager = () => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityClass = (priority: string) => {
     switch (priority) {
-      case "HIGH": return "bg-red-100 text-red-800 border-red-200";
-      case "MEDIUM": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "LOW": return "bg-green-100 text-green-800 border-green-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case "HIGH": return "priority-high";
+      case "MEDIUM": return "priority-medium";
+      case "LOW": return "priority-low";
+      default: return "priority-medium";
+    }
+  };
+
+  const getPriorityText = (priority: string) => {
+    switch (priority) {
+      case "HIGH": return "高";
+      case "MEDIUM": return "中";
+      case "LOW": return "低";
+      default: return "中";
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-lg">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">タスク管理</h1>
+    <div className="container">
+      <div className="card">
+        <div style={{ borderBottom: '1px solid #ddd', paddingBottom: '20px', marginBottom: '20px' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>タスク管理</h1>
           
           {/* タスク作成フォーム */}
-          <form onSubmit={handleCreateTask} className="space-y-4">
-            <div>
+          <form onSubmit={handleCreateTask}>
+            <div className="form-group">
               <input
                 type="text"
                 placeholder="新しいタスクのタイトル"
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="form-input"
                 required
               />
             </div>
-            <div>
+            <div className="form-group">
               <textarea
                 placeholder="説明（オプション）"
                 value={newTaskDescription}
                 onChange={(e) => setNewTaskDescription(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="form-textarea"
                 rows={3}
               />
             </div>
-            <div className="flex gap-4">
+            <div className="form-row">
               <select
                 value={newTaskPriority}
                 onChange={(e) => setNewTaskPriority(e.target.value as Priority)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="form-select"
               >
                 <option value="LOW">低優先度</option>
                 <option value="MEDIUM">中優先度</option>
@@ -132,7 +141,7 @@ const TaskManager = () => {
               <button
                 type="submit"
                 disabled={createTask.isLoading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                className="btn btn-primary"
               >
                 {createTask.isLoading ? "作成中..." : "タスク作成"}
               </button>
@@ -141,45 +150,49 @@ const TaskManager = () => {
         </div>
 
         {/* タスク一覧 */}
-        <div className="p-6">
+        <div>
           {tasks.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">タスクがありません。新しいタスクを作成してください。</p>
+            <p style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
+              タスクがありません。新しいタスクを作成してください。
+            </p>
           ) : (
-            <div className="space-y-4">
+            <div>
               {tasks.map((task) => (
                 <div
                   key={task.id}
-                  className={`p-4 border rounded-lg ${
-                    task.completed ? "bg-gray-50 opacity-75" : "bg-white"
-                  }`}
+                  className={`task-item ${task.completed ? 'task-completed' : ''}`}
                 >
                   {editingTask?.id === task.id ? (
                     /* 編集モード */
-                    <form onSubmit={handleUpdateTask} className="space-y-3">
-                      <input
-                        type="text"
-                        value={editingTask.title}
-                        onChange={(e) =>
-                          setEditingTask({ ...editingTask, title: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                      <textarea
-                        value={editingTask.description || ""}
-                        onChange={(e) =>
-                          setEditingTask({ ...editingTask, description: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                        rows={2}
-                      />
-                      <div className="flex gap-2">
+                    <form onSubmit={handleUpdateTask}>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          value={editingTask.title}
+                          onChange={(e) =>
+                            setEditingTask({ ...editingTask, title: e.target.value })
+                          }
+                          className="form-input"
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <textarea
+                          value={editingTask.description || ""}
+                          onChange={(e) =>
+                            setEditingTask({ ...editingTask, description: e.target.value })
+                          }
+                          className="form-textarea"
+                          rows={2}
+                        />
+                      </div>
+                      <div className="form-row">
                         <select
                           value={editingTask.priority}
                           onChange={(e) =>
                             setEditingTask({ ...editingTask, priority: e.target.value })
                           }
-                          className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                          className="form-select"
                         >
                           <option value="LOW">低優先度</option>
                           <option value="MEDIUM">中優先度</option>
@@ -188,14 +201,14 @@ const TaskManager = () => {
                         <button
                           type="submit"
                           disabled={updateTask.isLoading}
-                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                          className="btn btn-success"
                         >
                           保存
                         </button>
                         <button
                           type="button"
                           onClick={() => setEditingTask(null)}
-                          className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                          className="btn btn-secondary"
                         >
                           キャンセル
                         </button>
@@ -203,61 +216,41 @@ const TaskManager = () => {
                     </form>
                   ) : (
                     /* 表示モード */
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3
-                            className={`text-lg font-semibold ${
-                              task.completed ? "line-through text-gray-500" : "text-gray-900"
-                            }`}
-                          >
-                            {task.title}
-                          </h3>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(
-                              task.priority
-                            )}`}
-                          >
-                            {task.priority === "HIGH" && "高"}
-                            {task.priority === "MEDIUM" && "中"}
-                            {task.priority === "LOW" && "低"}
-                          </span>
-                        </div>
-                        {task.description && (
-                          <p
-                            className={`text-sm ${
-                              task.completed ? "text-gray-400" : "text-gray-600"
-                            }`}
-                          >
-                            {task.description}
-                          </p>
-                        )}
-                        <p className="text-xs text-gray-400 mt-2">
-                          作成: {new Date(task.createdAt).toLocaleDateString("ja-JP")}
-                        </p>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
+                        <h3 className={`task-title ${task.completed ? 'completed' : ''}`}>
+                          {task.title}
+                        </h3>
+                        <span className={`priority-badge ${getPriorityClass(task.priority)}`}>
+                          {getPriorityText(task.priority)}
+                        </span>
                       </div>
-                      <div className="flex gap-2 ml-4">
+                      {task.description && (
+                        <p className="task-description">
+                          {task.description}
+                        </p>
+                      )}
+                      <p className="task-meta">
+                        作成: {new Date(task.createdAt).toLocaleDateString("ja-JP")}
+                      </p>
+                      <div className="task-actions">
                         <button
                           onClick={() => handleToggleTask(task.id)}
                           disabled={toggleTask.isLoading}
-                          className={`px-3 py-1 rounded-md text-sm font-medium ${
-                            task.completed
-                              ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
-                              : "bg-green-100 text-green-800 hover:bg-green-200"
-                          } disabled:opacity-50`}
+                          className={`btn ${task.completed ? 'btn-secondary' : 'btn-success'}`}
                         >
                           {task.completed ? "未完了に戻す" : "完了"}
                         </button>
                         <button
                           onClick={() => setEditingTask(task)}
-                          className="px-3 py-1 bg-blue-100 text-blue-800 rounded-md text-sm font-medium hover:bg-blue-200"
+                          className="btn btn-primary"
                         >
                           編集
                         </button>
                         <button
                           onClick={() => handleDeleteTask(task.id)}
                           disabled={deleteTask.isLoading}
-                          className="px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm font-medium hover:bg-red-200 disabled:opacity-50"
+                          className="btn btn-danger"
                         >
                           削除
                         </button>
